@@ -1,0 +1,24 @@
+Package: ngspatial
+Version: 1.1
+Date: 2015-12-03
+Title: Fitting the Centered Autologistic and Sparse Spatial Generalized Linear
+    Mixed Models for Areal Data
+Type: Package
+Author: John Hughes <hughesj@umn.edu> and Xiaohui Cui <cuixx132@umn.edu>
+Maintainer: John Hughes <hughesj@umn.edu>
+Depends:
+    Rcpp,
+    utils,
+    batchmeans
+Suggests:
+    parallel
+Description: Provides tools for analyzing spatial data, especially
+    non-Gaussian areal data. The current version supports the sparse spatial
+    generalized linear mixed model of Hughes and Haran (2013) and the centered
+    autologistic model of Caragea and Kaiser (2009).
+License: GPL (>= 2)
+LinkingTo: Rcpp, RcppArmadillo
+URL: http://www.biostat.umn.edu/~johnh
+Repository: CRAN
+RcppModules: moller, perfsampler, util, msglmmBinomial, msglmmPoisson
+RoxygenNote: 5.0.1
