@@ -1,9 +1,0 @@
-- Create multivariate logistic internal function
-  o Needs to take as input number of trials, k, for each observation
-  o For k=1, we have binary observations
-  
-- Create multivariate gaussian internal function
-
-- 'Pre-smooth' by right-multiplying M by the inverse of the Cholesky of Qs
-  o Need the option of not doing this for every outcome if a single common design
-    matrix is used
