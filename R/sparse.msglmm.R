@@ -12,8 +12,6 @@ sparse.msglmm.fit.binomial = function(Y, X, A, M, beta.start, V, offset, tol, mi
     q = ncol(M)
     gamma = matrix(0, iterations + 1, q)
     gamma[1, ] = rnorm(q, 0, 1)
-    a.s = 0.5
-    b.s = 2000
 
     
     if (is.null(offset))
