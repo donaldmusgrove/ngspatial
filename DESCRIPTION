@@ -20,5 +20,5 @@ License: GPL (>= 2)
 LinkingTo: Rcpp, RcppArmadillo
 URL: http://www.biostat.umn.edu/~johnh
 Repository: CRAN
-RcppModules: moller, perfsampler, util, msglmmBinomial, msglmmPoisson
+RcppModules: moller, perfsampler, util, msglmmBinomial, msglmmPoisson, msglmmPoissonH, msglmmHurdle
 RoxygenNote: 5.0.1

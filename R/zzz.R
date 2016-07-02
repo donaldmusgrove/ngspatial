@@ -25,8 +25,9 @@
     temp = packageDescription("ngspatial")
     msg = paste(temp$Package, ": ", temp$Title, "\n", "Version ", temp$Version,
                 " created on ", temp$Date, ".\n", sep = "")
-    msg = paste(msg, "copyright (c) 2013-15, John Hughes, University of Minnesota\n",
+    msg = paste(msg, "copyright (c) 2013-16, John Hughes, University of Minnesota\n",
 "                       Xiaohui Cui, University of Minnesota\n",
+"                       Donald Musgrove, University of Minnesota\n",
                 sep = "")
     msg = paste(msg, 'For citation information, type citation("ngspatial").\n', sep = "")
     msg = paste(msg, 'Type help(package = ngspatial) to get started.\n', sep = "")
