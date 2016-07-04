@@ -4,7 +4,7 @@
 #
 # Written by John Hughes <hughesj@umn.edu>.
 #
-# Last Modified 01/16/15
+# Last Modified 06/30/2016
 # Licensed under the GNU General Public License version 2 (June, 1991)
 #
 # Part of the R/ngspatial package
@@ -15,9 +15,20 @@
 
 #' @import batchmeans Rcpp utils
 
+
+### See section 3.1.2 of http://dirk.eddelbuettel.com/code/rcpp/Rcpp-modules.pdf
+### For some unknown reason, loadModule("moduleName",what=TRUE) does not work
+moller         = Module("moller")
+perfsampler    = Module("perfsampler")
+msglmmutil     = Module("msglmmutil")
+msglmmBinomial = Module("msglmmBinomial")
+msglmmPoisson  = Module("msglmmPoisson")
+msglmmPoissonH = Module("msglmmPoissonH")
+msglmmHurdle   = Module("msglmmHurdle")
+msglmmGaussian = Module("msglmmGaussian")
 .onLoad = function(libname, pkgname)
 {
-    loadRcppModules(direct = FALSE)
+  #loadRcppModules(direct = FALSE)
 }
 
 

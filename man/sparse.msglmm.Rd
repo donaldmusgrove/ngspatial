@@ -4,8 +4,9 @@
 \alias{sparse.msglmm}
 \title{Fit a sparse multivariate SGLMM.}
 \usage{
-sparse.msglmm(family, Y, X, M, offset, Ntrials, beta0, Psi0, Sigma0, Delta0,
-  tol, minit, maxit, tune, hyper, verbose = 0)
+sparse.msglmm(family, Y, X, M, offset = NULL, Ntrials = NULL, beta0, Psi0,
+  Sigma0, Delta0 = NULL, tau2e0 = NULL, tol, minit, maxit, tune = NULL,
+  hyper, verbose = 0)
 }
 \arguments{
 \item{X}{the design matrix.}

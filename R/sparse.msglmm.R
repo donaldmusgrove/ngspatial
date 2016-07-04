@@ -1,4 +1,233 @@
 
+
+### Multivariate Gaussian
+sparse.msglmm.fit.gaussian = function(Y, X, M, 
+                                     beta.start, Psi.start, Sigma.start, tau2e.start, 
+                                     tol, minit, maxit, 
+                                     hyper, verbose)
+{
+
+
+  iterations = minit
+  n          = nrow(Y)
+  J          = ncol(Y)
+  q          = ncol(M[[1]])
+  pJ         = sapply(X,ncol) 
+    
+  beta       = matrix(beta.start,1,J)
+  Psi        = matrix(c(Psi.start), q*J,1)
+  tau2e      = matrix(tau2e.start, J, 1)
+  Sigma      = array(Sigma.start, c(J,J,1))
+  v          = c()   
+  
+  running.iter = 1
+  five.pct     = round(0.05*maxit, 0)
+  five.pct     = round(seq(five.pct, maxit, five.pct), 0)
+
+  if(verbose){
+    cat("Now sampling. Caution, MCMC can be time consuming. \n")
+  }
+  
+  
+  repeat{
+    #### MCMC sampling
+    chains = msglmmGaussian$msglmmGaussianCPP(iterations  = iterations, 
+                            Y           = Y, 
+                            X           = X, 
+                            M           = M, 
+                            taub        = hyper$tau.b,
+                            nu          = hyper$nu,
+                            taus        = hyper$tau.s,
+                            tau2ea      = hyper$tau2e.a,
+                            tau2eb      = hyper$tau2e.b,
+                            beta0       = beta[running.iter,],
+                            Psi0        = Psi[,running.iter],
+                            tau2e0      = tau2e[,running.iter],
+                            Sigma0      = Sigma[,,running.iter],
+                            verbose     = verbose,
+                            runningIter = running.iter,
+                            fivepct     = five.pct,
+                            maxit       = maxit)
+                            
+    running.iter = chains$runningIter
+
+    ### Combine latest chains with previous chains
+    beta  = rbind(beta, chains$bChain[-1,])
+    Psi   = cbind(Psi, chains$PsiChain[,-1])
+    tau2e = cbind(tau2e, chains$tau2eChain[,-1])
+    Sigma = msglmmutil$arraybind(Sigma, chains$SigmaChain[,,-1])
+    v     = c(v,chains$v)
+        
+    if (running.iter >= maxit){
+      break
+    }
+    
+    done = TRUE
+            
+    ### Check if spatial effects converged
+    PsiSE     = bmmat(t(Psi))[,2]
+    if (any(PsiSE>tol)){
+      done = FALSE
+    }
+    
+    ### Check if covariance matrix converged
+    if (done){
+      SigmaSE = apply(Sigma,c(1,2),function(x) unlist(bm(x)))[2,,]
+      if (any(SigmaSE>tol)){
+        done = FALSE
+      }
+    }
+    
+    ### Check if error variance tau2e converged
+    if (done){
+      tau2eSE     = bmmat(t(tau2e))[,2]
+      if (any(tau2eSE>tol)){
+        done = FALSE
+      }
+    }
+        
+    ### Check if regression coefficients converged
+    if (done){
+      beta.chain = lapply(1:J, function(j) matrix(unlist(beta[,j]), ncol=pJ[j], byrow=TRUE))
+      betaSE     = sapply(beta.chain, function(x) bmmat(x)[,2])
+      if (any(betaSE>tol)){
+        done = FALSE
+      }
+    }  
+        
+    ### If all converged, break the repeat
+    if (done){
+      break
+    }      
+        
+    ### If at least one did not converge and maxit has not been reached, 
+    ### continue sampling until maxit is reached
+    else{
+      iterAdd    = running.iter + minit
+      iterations = ifelse(iterAdd>maxit, maxit-running.iter+1, iterations)
+    }
+  }
+  
+  if(verbose){
+    cat("Sampling complete. Now compiling results. \n")
+  }
+  
+    
+  ### Extract regression coefficients
+  if(verbose){
+    cat("Now extracting regression coefficients. \n")
+  }
+  
+  beta.chain = lapply(1:J, function(j) matrix(unlist(beta[,j]), ncol=pJ[j], byrow=TRUE))
+    
+  betanames    = lapply(X, colnames)
+  coefficients = beta.mcse = vector("list", length=J)
+  for(j in 1:J){
+  if(!is.null(ncol(beta.chain[[j]]))){
+    temp              = bmmat(beta.chain[[j]])
+    coefficients[[j]] = temp[,1]
+    beta.mcse[[j]]    = temp[,2]
+  } else{
+    temp              = bm(beta.chain[[j]]) 
+    coefficients[[j]] = temp$est
+    beta.mcse[[j]]    = temp$se
+  }
+    names(coefficients[[j]]) = betanames[[j]]
+    names(beta.mcse[[j]])    = betanames[[j]]
+  }
+    
+    
+  ### Extract spatial effects
+  if(verbose){
+    cat("=> Extracting spatial random effects. \n")
+  }
+  
+  ### Put spatial effects into array form
+  iterP   = ncol(Psi)
+  Psi     = array(Psi,c(q,J,iterP))
+  Psi.est = Psi.se = matrix(, q,J)
+  for(j in 1:J){
+    temp        = bmmat(t(Psi[,j,]))
+    Psi.est[,j] = temp[,1]
+    Psi.se[,j]  = temp[,2]
+  }
+  
+  
+  ### Extract error variance
+  if(verbose){
+    cat("=> Extracting error variance. \n")
+  }
+  temp      = bmmat(t(tau2e))
+  tau2e.est = temp[,1]
+  tau2e.se  = temp[,2]
+
+  
+  ### Extract covariance matrix estimate
+  if(verbose){
+    cat("=> Extracting covariance matrix. \n")
+  }
+  Sigma.est = apply(Sigma,c(1,2),function(x) unlist(bm(x)))[1,,]
+  Sigma.se  = apply(Sigma,c(1,2),function(x) unlist(bm(x)))[2,,]
+  
+  ### Create correlation matrix and extract estimates
+  if(verbose){
+    cat("=> Computing and extracting correlation matrix. \n")
+  }
+  Rho     = msglmmutil$acov2corcpp(Sigma)
+  Rho.est = apply(Rho,c(1,2),function(x) unlist(bm(x)))[1,,]
+  Rho.se  = apply(Rho,c(1,2),function(x) unlist(bm(x)))[2,,]
+  diag(Rho.se) = NA
+
+        
+  ### Fitted values and other things
+  if(verbose){
+    cat("=> Calculating linear predictors, fitted values, and residuals. \n")
+  }
+  
+  linear.predictors = matrix(0,n,J)
+  fitted.values     = matrix(0,n,J)
+    
+  for(j in 1:J){
+    eta                   = X[[j]]%*%t(beta.chain[[j]]) + M[[j]]%*%Psi[,j,]
+    lambda                = eta
+    linear.predictors[,j] = rowMeans(eta)  
+    fitted.values[,j]     = rowMeans(lambda)
+  }
+    
+  ### Calculate residuals
+  residuals = Y - fitted.values
+    
+  ### Calculate DIC
+  D.bar = mean(v)
+  pD    = D.bar + 2 * msglmmGaussian$dGaussMulti(Y, X, M, coefficients, c(Psi.est), tau2e.est)
+  dic   = D.bar + pD
+    
+  object = list(coefficients      = coefficients, 
+                fitted.values     = fitted.values,
+                linear.predictors = linear.predictors, 
+                residuals         = residuals,
+                beta.sample       = beta.chain, 
+                Psi.sample        = Psi, 
+                tau2e.sample      = tau2e, 
+                Sigma.sample      = Sigma,
+                beta.mcse         = beta.mcse, 
+                Psi.mcse          = Psi.se, 
+                tau2e.mcse        = tau2e.se, 
+                Sigma.mcse        = Sigma.se,
+                Psi.est           = Psi.est, 
+                tau2e.est         = tau2e.est,      
+                Sigma.est         = Sigma.est,
+                Rho.est           = Rho.est,
+                Rho.se            = Rho.se,
+                iter              = running.iter-1, 
+                dic               = dic,
+                D.bar             = D.bar, 
+                pD                = pD)
+  class(object) = c("sparse.msglmm")
+  object
+}
+
+
 ### Hurdle/ZIP model
 sparse.msglmm.fit.hurdle = function(Y, X, offset, M, 
                                     beta.start, Psi.start, Sigma.start, 
@@ -929,10 +1158,16 @@ sparse.msglmm.fit.poissonH = function(Y, X, offset, M,
 #' @param theta the vector of parameter values: \eqn{\theta = (\beta^\prime, \eta)^\prime}{\theta = (\beta', \eta)'}.
 #' @return A vector that is distributed exactly according to the centered autologistic model with the given design matrix and parameter values.
 #' @export
-sparse.msglmm <- function(family, Y, X, M, offset, Ntrials, beta0, Psi0,
-                          Sigma0, Delta0, tol, minit, maxit, tune, hyper, verbose=0){
+sparse.msglmm <- function(family, Y, X, M, offset=NULL, Ntrials=NULL, beta0, Psi0,
+                          Sigma0, Delta0=NULL, tau2e0=NULL, tol, minit, maxit, tune=NULL, hyper, verbose=0){
 
-  if(family=="hurdle" | family=="zip" | family=="ZIP"){
+                          
+  if(family=="gaussian"){
+    sparse.msglmm.fit.gaussian(Y, X, M, 
+                               beta0, Psi0, Sigma0, tau2e0, 
+                               tol, minit, maxit, 
+                               hyper, verbose)                 
+  } else if(family=="hurdle" | family=="zip" | family=="ZIP"){
     Z <- ifelse(Y==0,0,1)
     Y <- cbind(Z,Y)
     sparse.msglmm.fit.hurdle(Y, X, offset, M, 

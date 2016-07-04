@@ -19,6 +19,5 @@ Description: Provides tools for analyzing spatial data, especially
 License: GPL (>= 2)
 LinkingTo: Rcpp, RcppArmadillo
 URL: http://www.biostat.umn.edu/~johnh
-RcppModules: moller, perfsampler, msglmmutil, msglmmBinomial, msglmmPoisson, msglmmPoissonH, msglmmHurdle
 Repository: CRAN
 RoxygenNote: 5.0.1
