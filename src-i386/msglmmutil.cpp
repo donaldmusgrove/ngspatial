@@ -1,4 +1,4 @@
-#include "util.h"
+#include "msglmmutil.h"
 #include <RcppArmadillo.h>
 #include <iostream>
 
@@ -6,6 +6,38 @@ using namespace Rcpp;
 using namespace RcppArmadillo;
 using namespace std;
 using namespace arma;
+
+
+// Create a block diagonal matrix
+mat blockDiag(const List& M) {
+
+  int J = M.size();
+  int dimen1 = 0 ;
+  int dimen2 = 0 ;
+  int idx1 = 0;
+  int idx2 = 0;
+  ivec dimvec1(J);
+  ivec dimvec2(J);
+  
+  for(int i=0; i < J; i++) {
+    mat Mmat   = M(i);
+    dimvec1(i) = Mmat.n_rows ; 
+    dimvec2(i) = Mmat.n_cols ; 
+    dimen1    += dimvec1(i) ;
+    dimen2    += dimvec2(i) ;
+  }
+
+  mat Mdiag(dimen1,dimen2,fill::zeros);
+   
+  for(int i=0; i<J; i++) {
+    mat Mmat = M(i);
+    Mdiag.submat(idx1, idx2, idx1 + dimvec1(i)-1, idx2 + dimvec2(i)-1 ) = Mmat;
+    idx1 = idx1 + dimvec1(i);
+    idx2 = idx2 + dimvec2(i);
+  }
+
+  return(Mdiag);
+}
 
 
 // Draw a sample from a Wishart distribution
@@ -207,7 +239,7 @@ vec vectorSubset(const vec& x, int a, int b){
 }
 
 
-RCPP_MODULE(util){
+RCPP_MODULE(msglmmutil){
   Rcpp::function("rwishart", &rwishart);
   Rcpp::function("riwishart", &riwishart);
   Rcpp::function("SigmaSampler", &SigmaSampler);
@@ -221,4 +253,5 @@ RCPP_MODULE(util){
   Rcpp::function("acov2corcpp", &acov2corcpp);
   Rcpp::function("vectorSubset", &vectorSubset);
   Rcpp::function("SigmaSamplerVec", &SigmaSamplerVec);
+  Rcpp::function("blockDiag", &blockDiag);
 }

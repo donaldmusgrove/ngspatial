@@ -52,8 +52,8 @@ sparse.msglmm.fit.hurdle = function(Y, X, offset, M,
 
     ### Combine latest chains with previous chains
     beta  = rbind(beta, chains$bChain[-1,])
-    Psi   = util$arraybind(Psi, chains$PsiChain[,,-1])
-    Sigma = util$arraybind(Sigma, chains$SigmaChain[,,-1])
+    Psi   = msglmmutil$arraybind(Psi, chains$PsiChain[,,-1])
+    Sigma = msglmmutil$arraybind(Sigma, chains$SigmaChain[,,-1])
     vH     = c(vH,chains$vHurdle)
     vZ     = c(vZ,chains$vZIP)
     
@@ -150,7 +150,7 @@ sparse.msglmm.fit.hurdle = function(Y, X, offset, M,
   if(verbose){
     cat("=> Computing and extracting correlation matrix. \n")
   }
-  Rho     = util$acov2corcpp(Sigma)
+  Rho     = msglmmutil$acov2corcpp(Sigma)
   Rho.est = apply(Rho,c(1,2),function(x) unlist(bm(x)))[1,,]
   Rho.se  = apply(Rho,c(1,2),function(x) unlist(bm(x)))[2,,]
   diag(Rho.se) = NA
@@ -281,8 +281,8 @@ sparse.msglmm.fit.binomial = function(Y, X, Ntrials, offset, M,
 
     ### Combine latest chains with previous chains
     beta  = rbind(beta, chains$bChain[-1,])
-    Psi   = util$arraybind(Psi, chains$PsiChain[,,-1])
-    Sigma = util$arraybind(Sigma, chains$SigmaChain[,,-1])
+    Psi   = msglmmutil$arraybind(Psi, chains$PsiChain[,,-1])
+    Sigma = msglmmutil$arraybind(Sigma, chains$SigmaChain[,,-1])
     v     = c(v,chains$v)
         
     if (running.iter >= maxit){
@@ -378,7 +378,7 @@ sparse.msglmm.fit.binomial = function(Y, X, Ntrials, offset, M,
   if(verbose){
     cat("=> Computing and extracting correlation matrix. \n")
   }
-  Rho     = util$acov2corcpp(Sigma)
+  Rho     = msglmmutil$acov2corcpp(Sigma)
   Rho.est = apply(Rho,c(1,2),function(x) unlist(bm(x)))[1,,]
   Rho.se  = apply(Rho,c(1,2),function(x) unlist(bm(x)))[2,,]
   diag(Rho.se) = NA
@@ -500,8 +500,8 @@ sparse.msglmm.fit.poisson = function(Y, X, offset, M,
 
     ### Combine latest chains with previous chains
     beta  = rbind(beta, chains$bChain[-1,])
-    Psi   = util$arraybind(Psi, chains$PsiChain[,,-1])
-    Sigma = util$arraybind(Sigma, chains$SigmaChain[,,-1])
+    Psi   = msglmmutil$arraybind(Psi, chains$PsiChain[,,-1])
+    Sigma = msglmmutil$arraybind(Sigma, chains$SigmaChain[,,-1])
     v     = c(v,chains$v)
         
     if (running.iter >= maxit){
@@ -597,7 +597,7 @@ sparse.msglmm.fit.poisson = function(Y, X, offset, M,
   if(verbose){
     cat("=> Computing and extracting correlation matrix. \n")
   }
-  Rho     = util$acov2corcpp(Sigma)
+  Rho     = msglmmutil$acov2corcpp(Sigma)
   Rho.est = apply(Rho,c(1,2),function(x) unlist(bm(x)))[1,,]
   Rho.se  = apply(Rho,c(1,2),function(x) unlist(bm(x)))[2,,]
   diag(Rho.se) = NA
@@ -723,9 +723,9 @@ sparse.msglmm.fit.poissonH = function(Y, X, offset, M,
 
     ### Combine latest chains with previous chains
     beta  = rbind(beta, chains$bChain[-1,])
-    Psi   = util$arraybind(Psi, chains$PsiChain[,,-1])
-    Sigma = util$arraybind(Sigma, chains$SigmaChain[,,-1])
-    Delta = util$arraybind(Delta, chains$DeltaChain[,,-1])
+    Psi   = msglmmutil$arraybind(Psi, chains$PsiChain[,,-1])
+    Sigma = msglmmutil$arraybind(Sigma, chains$SigmaChain[,,-1])
+    Delta = msglmmutil$arraybind(Delta, chains$DeltaChain[,,-1])
     v     = c(v,chains$v)
         
     if (running.iter >= maxit){
@@ -843,7 +843,7 @@ sparse.msglmm.fit.poissonH = function(Y, X, offset, M,
   if(verbose){
     cat("=> Computing and extracting correlation matrix. \n")
   }
-  Rho     = util$acov2corcpp(Sigma)
+  Rho     = msglmmutil$acov2corcpp(Sigma)
   Rho.est = apply(Rho,c(1,2),function(x) unlist(bm(x)))[1,,]
   Rho.se  = apply(Rho,c(1,2),function(x) unlist(bm(x)))[2,,]
   diag(Rho.se) = NA

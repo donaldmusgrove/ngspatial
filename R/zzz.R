@@ -20,6 +20,7 @@
     loadRcppModules(direct = FALSE)
 }
 
+
 .onAttach = function(libname, pkgname)
 {
     temp = packageDescription("ngspatial")

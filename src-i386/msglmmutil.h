@@ -1,5 +1,5 @@
-#ifndef _ngspatial_UTIL_H
-#define _ngspatial_UTIL_H
+#ifndef _ngspatial_MSGLMMUTIL_H
+#define _ngspatial_MSGLMMUTIL_H
 
 #include <RcppArmadillo.h>
 
@@ -16,5 +16,6 @@ arma::mat cov2corcpp(const arma::mat& V);
 arma::cube acov2corcpp(const arma::cube& V);
 arma::vec vectorSubset(const arma::vec& x, int a, int b);
 arma::mat SigmaSamplerVec(const arma::vec& a, const arma::vec& Psi, double nu);
+arma::mat blockDiag(const Rcpp::List& M);
 
 #endif
