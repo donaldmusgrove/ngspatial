@@ -1,0 +1,105 @@
+
+- Implement R level Gaussian code
+
+
+  
+
+################################################################################
+Expected user-inputs
+################################################################################
+Binomial data
+# Inputs
+  o Y nxJ matrix of counts (or 0s and 1s)
+  o Ntrials nxJ matrix of number of trials (1 for binary data)
+  o X list of length J with each list entry an nxp_j matrix
+  o offset matrix of offsets into the linear predictor
+  o A nxn binary adjacency matrix
+  o attractive number of attractive Moran eigenvectors to use
+  o repulsive number of repulsive Moran eigenvectors to use
+  o tol tolerance for MCSE
+  o minit min MCMC sample sze
+  o maxit max MCMC sample size
+# Initial values
+  - beta, Psi, Sigma
+# Hyperparameters
+  - taub: precision of beta
+  - a.s and b.s: shape and scale for Sigma
+# Tuning parameters (tune Metropolis acceptance)
+  - sigmab Jx1 vector for regression coefficients
+  - sigmas Jx1 vector for spatial effects
+
+  
+Poisson data
+# Inputs
+  o Y nxJ matrix of counts
+  o X list of length J with each list entry an nxp_j matrix
+  o offset matrix of offsets into the linear predictor
+  o A nxn binary adjacency matrix
+  o attractive number of attractive Moran eigenvectors to use
+  o repulsive number of repulsive Moran eigenvectors to use
+  o tol tolerance for MCSE
+  o minit min MCMC sample sze
+  o maxit max MCMC sample size
+# Initial values
+  o beta list of p_jx1 vectors, j=1,...,J
+  o Psi list of J qx1 vectors
+  o Sigma JxJ matrix
+  o hetero (optional) list of J qx1 vectors
+# Hyperparameters
+  o taub: precision of beta
+  o a.s and b.s: shape and scale for Sigma
+  o tauh: precision of hetero (if desired)
+# Tuning parameters (tune Metropolis acceptance)
+  o sigmab Jx1 vector for regression coefficients
+  o sigmas Jx1 vector for spatial effects
+  o sigmah: Jx1 vector for hetero random effects
+  
+
+Gaussian data
+# Inputs
+  o Y nxJ matrix of continuous values
+  o X list of length J with each list entry an nxp_j matrix
+  o A nxn binary adjacency matrix
+  o attractive number of attractive Moran eigenvectors to use
+  o repulsive number of repulsive Moran eigenvectors to use
+  o tol tolerance for MCSE
+  o minit min MCMC sample sze
+  o maxit max MCMC sample size
+# Initial values
+  o beta list of p_jx1 vectors, j=1,...,J
+  o Psi list of J qx1 vectors
+  o Sigma JxJ matrix
+# Hyperparameters
+  o taub: precision of beta
+  o a.s and b.s: shape and scale for Sigma
+  o tauh: precision of hetero (i.e., Gaussian variance at likelihood level)
+    - a.h and b.h: shape and scale for hetero
+# Tuning parameters (tune Metropolis acceptance)
+  o sigmab Jx1 vector for regression coefficients
+  o sigmas Jx1 vector for spatial effects
+  
+  
+Zero-inflated data
+# Inputs
+  o Y nx1 vector of counts
+  o X list of length 2 with each list entry an nxp_j matrix
+  o offset matrix of offsets into the linear predictor for count part
+  o A nxn binary adjacency matrix
+  o attractive number of attractive Moran eigenvectors to use
+  o repulsive number of repulsive Moran eigenvectors to use
+  o tol tolerance for MCSE
+  o minit min MCMC sample sze
+  o maxit max MCMC sample size
+# Initial values
+  o beta list of p_jx1 vectors, j=1,2
+  o Psi list of 2 qx1 vectors
+  o Sigma 2x2 matrix
+  o hetero (optional) list of qx1 vectors for count model
+# Hyperparameters
+  o taub: precision of beta
+  o a.s and b.s: shape and scale for Sigma
+  o tauh: precision of hetero (if desired)
+# Tuning parameters (tune Metropolis acceptance)
+  o sigmab: 2x1 vector for regression coefficients
+  o sigmas: 2x1 vector for spatial effects
+  o sigmah: vector for hetero random effects
